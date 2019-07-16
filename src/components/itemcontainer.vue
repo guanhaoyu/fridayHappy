@@ -15,7 +15,21 @@
         </div>
 
         <div v-if="fatherComponent === 'item'">
-            <div class="item_back item_container_style"></div>
+            <div class="item_back item_container_style">
+                <div class="item_list_container" v-if="itemDetail.length>0">
+                    <header class="item_title">{{itemDetail[itemNum-1].topic_name}}</header>
+                    <ul>
+                        <li 
+                        v-for="(item,index) in itemDetail[itemNum-1].topic_answer" 
+                        :key="index"
+                        @click="choosed(index,item.topic_answer_id)" class="item_list"
+                        >
+                            <span class="option_style" v-bind:class="{'has_choosed':choosedNum===index}">{{chooseType(index)}}</span>
+    						<span class="option_detail">{{item.answer_name}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -25,14 +39,28 @@ import {mapState,mapActions} from 'vuex'
 export default {
     name:'itemcontainer',
     props: ['fatherComponent'],
+    data(){
+        return{    
+            choosedNum: null
+        }
+    },
     computed: mapState([
-        'level',
-        'itemNum',
+        'level',//第几周
+        'itemNum',//第几题
+        'itemDetail',//题目详情
     ]),
     methods: {
         back(){
             this.$router.go(-1);
-        }
+        },
+        chooseType: type => {
+            switch(type){
+                case 0: return 'A';
+	  			case 1: return 'B';
+	  			case 2: return 'C';
+	  			case 3: return 'D';
+            }
+        },
     }
 }
 </script>
@@ -95,5 +123,49 @@ export default {
     color:antiquewhite;
     text-align: center;
     line-height: 2.1rem;
+}
+.item_list_container{
+    position: absolute;
+    height: 7.0rem;
+    width: 8.0rem;
+    top: 2.4rem;
+    left: 3rem;
+    -webkit-font-smoothing: antialiased;
+}
+.item_title{
+    font-size: 0.65rem;
+    color: #ffffff;
+    line-height: 0.7rem;
+}
+.item_list{
+    font-size: 0;
+    margin-top: 0.4rem;
+    width: 10rem;
+    span{
+        display: inline-block;
+        font-size: 0.6rem;
+        color: #ffffff;
+        vertical-align: middle;
+    }
+    .option_style{
+        height: 0.725rem;
+        width: 0.725rem;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        line-height: 0.725rem;
+        text-align: center;
+        margin-right: 0.3rem;
+        font-size: 0.5rem;
+        font-family: 'Arial';
+    }
+    .has_choosed{
+        background-color: #ffd400;
+        color: #575757;
+        border-color: #ffd400;
+    }
+    .option_detail{
+        width: 7.5rem;
+        padding-top: 0.11rem;
+    }
 }
 </style>
