@@ -11,7 +11,8 @@
             <router-link to="item" class="start button_style" ></router-link>
         </div>
         <div v-else>
-            <span to="" class="back_button button_style" @click="back">返回</span>
+            <!-- <span id="lkx" to="" class="back_button button_style" @click="back">重开</span> -->
+            <van-button square type="primary" @click="back" style="margin:0 auto;">重开</van-button>
         </div>
 
         <div v-if="fatherComponent === 'item'">
@@ -30,12 +31,19 @@
                     </ul>
                 </div>
             </div>
-        </div>
+            <span class="next_item button_style" @click="nextItem" v-if="itemNum < itemDetail.length"></span>
+            <span class="submit_item button_style" v-else @click="submitAnswer"></span>
+    	</div>
     </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import {mapState,mapActions} from 'vuex'
+import { Toast,Button } from 'vant';
+
+Vue.use(Toast).use(Button);
+
 export default {
     name:'itemcontainer',
     props: ['fatherComponent'],
@@ -44,15 +52,32 @@ export default {
             choosedNum: null
         }
     },
+    created(){
+		//初始化信息
+		if(this.fatherComponent == 'home') {
+			this.initializeData();
+            document.body.style.backgroundImage = 'url(./static/images/6-1.jpg)';
+            console.log(111111);
+		}else{
+            document.body.style.backgroundImage = 'url(./static/images/1-1.jpg)';
+            console.log(222);
+        }
+    },
     computed: mapState([
         'level',//第几周
         'itemNum',//第几题
         'itemDetail',//题目详情
+        'timer',//计时器
     ]),
     methods: {
+        ...mapActions([
+            'addNum','initializeData'
+        ]),
         back(){
-            this.$router.go(-1);
+            // this.$router.go(-1);
+            this.$router.push('/');
         },
+  		//索引0-3对应答案A-D
         chooseType: type => {
             switch(type){
                 case 0: return 'A';
@@ -61,6 +86,33 @@ export default {
 	  			case 3: return 'D';
             }
         },
+        //选中的答案信息
+	  	choosed(type,id){
+	  		this.choosedNum = type;
+	  		this.choosedId = id;
+        },
+        //点击下一题
+        nextItem(){
+            Toast.setDefaultOptions({
+                duration: 1000
+            });
+            if(this.choosedNum !== null){
+                this.choosedNum = null;
+                this.addNum(this.choosedId);
+            }else{
+                Toast('这题还没做呢');
+            }
+        },
+        //到达最后一题，交卷，清空定时器，跳转分数页面
+        submitAnswer(){
+            if(this.choosedNum !== null){
+                this.addNum(this.choosedId);
+                clearInterval(this.timer);
+                this.$router.push('score');
+            }else{
+                Toast('这题还没做呢');
+            }
+        }
     }
 }
 </script>
@@ -120,9 +172,17 @@ export default {
     background-image: url(../images/1-4.png);
 }
 .back_button{
-    color:antiquewhite;
+    color: darkseagreen;
     text-align: center;
     line-height: 2.1rem;
+    position: relative;
+    top: 0;
+}
+.next_item{
+    background-image: url(../images/2-2.png);
+}
+.submit_item{
+   	background-image: url(../images/3-1.png);
 }
 .item_list_container{
     position: absolute;
